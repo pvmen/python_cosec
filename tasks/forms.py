@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
-from .models import Task, Profile
+from .models import Profile, Task
 
 
 class TaskForm(forms.ModelForm):
@@ -55,5 +55,11 @@ class ProfileForm(forms.ModelForm):
         model = Profile
         fields = ["bio"]
         widgets = {
-            "bio": forms.Textarea(attrs={"class": "form-control", "rows": 5, "placeholder": "Расскажите о себе..."}),
+            "bio": forms.Textarea(
+                attrs={
+                    "class": "form-control",
+                    "rows": 5,
+                    "placeholder": "Расскажите о себе...",
+                }
+            ),
         }

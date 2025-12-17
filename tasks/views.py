@@ -1,17 +1,25 @@
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, TemplateView
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.views import LoginView
-from django.contrib.auth.models import User
-from django.contrib.auth import login
-from django.urls import reverse_lazy
-from django.views import View
-from django.http import JsonResponse
-from django.shortcuts import redirect, get_object_or_404
-from django.utils import timezone
-from django.db.models import Count, Q
 from datetime import timedelta
-from .models import Task, Category, Profile
-from .forms import TaskForm, RegisterForm, ProfileForm
+
+from django.contrib.auth import login
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.models import User
+from django.contrib.auth.views import LoginView
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse_lazy
+from django.utils import timezone
+from django.views import View
+from django.views.generic import (
+    CreateView,
+    DeleteView,
+    DetailView,
+    ListView,
+    TemplateView,
+    UpdateView,
+)
+
+from .forms import ProfileForm, RegisterForm, TaskForm
+from .models import Category, Profile, Task
 
 
 class CustomLoginView(LoginView):
@@ -37,27 +45,29 @@ class ProfileView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         username = self.kwargs.get("username")
         user = get_object_or_404(User, username=username)
-        
+
         if not hasattr(user, "profile"):
             Profile.objects.create(user=user)
-        
+
         context["profile_user"] = user
         context["profile"] = user.profile
         context["is_own_profile"] = self.request.user == user
-        
+
         now = timezone.now()
         today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
         week_start = today_start - timedelta(days=now.weekday())
         month_start = today_start.replace(day=1)
-        
+
         user_tasks = Task.objects.filter(assigned_to=user)
-        
+
         def get_metrics(start_date):
             period_tasks = user_tasks.filter(created_at__gte=start_date)
             completed = period_tasks.filter(status="done").count()
             total = period_tasks.count()
             in_progress = period_tasks.filter(status="in_progress").count()
-            hours = sum(t.estimated_hours or 0 for t in period_tasks.filter(status="done"))
+            hours = sum(
+                t.estimated_hours or 0 for t in period_tasks.filter(status="done")
+            )
             return {
                 "completed": completed,
                 "total": total,
@@ -65,17 +75,19 @@ class ProfileView(LoginRequiredMixin, TemplateView):
                 "hours": hours,
                 "completion_rate": round(completed / total * 100) if total > 0 else 0,
             }
-        
+
         context["metrics_today"] = get_metrics(today_start)
         context["metrics_week"] = get_metrics(week_start)
         context["metrics_month"] = get_metrics(month_start)
-        
+
         context["all_tasks"] = user_tasks.count()
         context["all_completed"] = user_tasks.filter(status="done").count()
-        context["all_hours"] = sum(t.estimated_hours or 0 for t in user_tasks.filter(status="done"))
-        
+        context["all_hours"] = sum(
+            t.estimated_hours or 0 for t in user_tasks.filter(status="done")
+        )
+
         context["recent_tasks"] = user_tasks.order_by("-created_at")[:5]
-        
+
         return context
 
 
@@ -120,9 +132,13 @@ class TaskListView(LoginRequiredMixin, ListView):
             queryset = queryset.filter(deadline__date=today)
         elif date_filter == "week":
             week_end = today + timedelta(days=7)
-            queryset = queryset.filter(deadline__date__gte=today, deadline__date__lte=week_end)
+            queryset = queryset.filter(
+                deadline__date__gte=today, deadline__date__lte=week_end
+            )
         elif date_filter == "overdue":
-            queryset = queryset.filter(deadline__lt=timezone.now()).exclude(status="done")
+            queryset = queryset.filter(deadline__lt=timezone.now()).exclude(
+                status="done"
+            )
 
         return queryset
 
@@ -171,7 +187,9 @@ class KanbanView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         context["statuses"] = Task.STATUS_CHOICES
         context["tasks_by_status"] = {
-            status[0]: Task.objects.filter(status=status[0]).select_related("category", "assigned_to")
+            status[0]: Task.objects.filter(status=status[0]).select_related(
+                "category", "assigned_to"
+            )
             for status in Task.STATUS_CHOICES
         }
         return context

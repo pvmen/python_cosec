@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Category, Task, Profile
+from .models import Category, Profile, Task
 
 
 @admin.register(Profile)
