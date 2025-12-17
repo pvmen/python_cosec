@@ -48,7 +48,9 @@
                             <li class="mb-2">
                                 <strong><i class="bi bi-person"></i> Исполнитель:</strong><br>
                                 {% if task.assigned_to %}
-                                {{ task.assigned_to.username }}
+                                <a href="{% url 'profile' task.assigned_to.username %}" class="text-decoration-none">
+                                    {{ task.assigned_to.username }}
+                                </a>
                                 {% else %}
                                 <span class="text-muted">Не назначен</span>
                                 {% endif %}

@@ -114,7 +114,10 @@
                     <span class="badge bg-secondary">{{ task.category.name }}</span>
                     {% endif %}
                     {% if task.assigned_to %}
-                    <br><i class="bi bi-person"></i> {{ task.assigned_to.username }}
+                    <br><i class="bi bi-person"></i>
+                    <a href="{% url 'profile' task.assigned_to.username %}" class="text-decoration-none text-muted">
+                        {{ task.assigned_to.username }}
+                    </a>
                     {% endif %}
                     {% if task.deadline %}
                     <br><i class="bi bi-calendar"></i> {{ task.deadline|date:"d.m" }}

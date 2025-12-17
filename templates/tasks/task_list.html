@@ -106,7 +106,10 @@
                 <div class="mt-3 small text-muted">
                     {% if task.assigned_to %}
                     <p class="mb-1">
-                        <i class="bi bi-person"></i> {{ task.assigned_to.username }}
+                        <i class="bi bi-person"></i>
+                        <a href="{% url 'profile' task.assigned_to.username %}" class="text-decoration-none">
+                            {{ task.assigned_to.username }}
+                        </a>
                     </p>
                     {% endif %}
                     {% if task.estimated_hours %}
