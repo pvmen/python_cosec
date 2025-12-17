@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if object %}Редактировать{% else %}Создать{% endif %} задачу - Task Manager{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'task_list' %}">Задачи</a></li>
+        <li class="breadcrumb-item active">{% if object %}Редактировать{% else %}Создать{% endif %}</li>
+    </ol>
+</nav>
+
+<div class="card">
+    <div class="card-header">
+        <h2 class="mb-0">
+            {% if object %}
+            <i class="bi bi-pencil"></i> Редактировать задачу
+            {% else %}
+            <i class="bi bi-plus-circle"></i> Новая задача
+            {% endif %}
+        </h2>
+    </div>
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="mb-3">
+                <label for="id_title" class="form-label">Название *</label>
+                {{ form.title }}
+                {% if form.title.errors %}
+                <div class="text-danger">{{ form.title.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="mb-3">
+                <label for="id_description" class="form-label">Описание</label>
+                {{ form.description }}
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="id_category" class="form-label">Категория</label>
+                    {{ form.category }}
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="id_assigned_to" class="form-label">Исполнитель</label>
+                    {{ form.assigned_to }}
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="id_deadline" class="form-label">Дедлайн</label>
+                    {{ form.deadline }}
+                </div>
+                <div class="col-md-6 mb-3 d-flex align-items-end">
+                    <div class="form-check">
+                        {{ form.is_completed }}
+                        <label class="form-check-label" for="id_is_completed">
+                            Задача выполнена
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <hr>
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-check-lg"></i> {% if object %}Сохранить{% else %}Создать{% endif %}
+            </button>
+            <a href="{% url 'task_list' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-x-lg"></i> Отмена
+            </a>
+        </form>
+    </div>
+</div>
+{% endblock %}
+

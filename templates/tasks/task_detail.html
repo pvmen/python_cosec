@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ task.title }} - Task Manager{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'task_list' %}">Задачи</a></li>
+        <li class="breadcrumb-item active">{{ task.title }}</li>
+    </ol>
+</nav>
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h2 class="mb-0">{{ task.title }}</h2>
+        {% if task.is_completed %}
+        <span class="badge bg-success fs-6">Выполнено</span>
+        {% else %}
+        <span class="badge bg-warning text-dark fs-6">В работе</span>
+        {% endif %}
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-8">
+                <h5>Описание</h5>
+                {% if task.description %}
+                <p class="lead">{{ task.description|linebreaks }}</p>
+                {% else %}
+                <p class="text-muted">Описание отсутствует</p>
+                {% endif %}
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <h6 class="card-title">Информация</h6>
+                        <ul class="list-unstyled mb-0">
+                            <li class="mb-2">
+                                <strong><i class="bi bi-folder"></i> Категория:</strong><br>
+                                {% if task.category %}
+                                <span class="badge bg-secondary">{{ task.category.name }}</span>
+                                {% else %}
+                                <span class="text-muted">Не указана</span>
+                                {% endif %}
+                            </li>
+                            <li class="mb-2">
+                                <strong><i class="bi bi-person"></i> Исполнитель:</strong><br>
+                                {% if task.assigned_to %}
+                                {{ task.assigned_to.username }}
+                                {% else %}
+                                <span class="text-muted">Не назначен</span>
+                                {% endif %}
+                            </li>
+                            <li class="mb-2">
+                                <strong><i class="bi bi-calendar-event"></i> Дедлайн:</strong><br>
+                                {% if task.deadline %}
+                                {{ task.deadline|date:"d.m.Y H:i" }}
+                                {% else %}
+                                <span class="text-muted">Не установлен</span>
+                                {% endif %}
+                            </li>
+                            <li>
+                                <strong><i class="bi bi-clock"></i> Создано:</strong><br>
+                                {{ task.created_at|date:"d.m.Y H:i" }}
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card-footer">
+        <a href="{% url 'task_update' task.pk %}" class="btn btn-warning">
+            <i class="bi bi-pencil"></i> Редактировать
+        </a>
+        <a href="{% url 'task_delete' task.pk %}" class="btn btn-danger">
+            <i class="bi bi-trash"></i> Удалить
+        </a>
+        <a href="{% url 'task_list' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> К списку
+        </a>
+    </div>
+</div>
+{% endblock %}
+
