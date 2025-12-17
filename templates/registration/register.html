@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Регистрация - Task Manager</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+        }
+        .register-card {
+            max-width: 450px;
+            margin: auto;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        .register-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px 15px 0 0;
+            padding: 30px;
+            text-align: center;
+        }
+        .register-header i {
+            font-size: 3rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card register-card">
+            <div class="register-header">
+                <i class="bi bi-person-plus"></i>
+                <h2 class="mt-2 mb-0">Регистрация</h2>
+                <p class="mb-0 opacity-75">Создайте аккаунт</p>
+            </div>
+            <div class="card-body p-4">
+                {% if form.errors %}
+                <div class="alert alert-danger">
+                    {% for field in form %}
+                        {% for error in field.errors %}
+                        <p class="mb-0"><i class="bi bi-exclamation-triangle"></i> {{ error }}</p>
+                        {% endfor %}
+                    {% endfor %}
+                    {% for error in form.non_field_errors %}
+                    <p class="mb-0"><i class="bi bi-exclamation-triangle"></i> {{ error }}</p>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="id_username" class="form-label">Логин</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-person"></i></span>
+                            {{ form.username }}
+                        </div>
+                        <small class="text-muted">Латинские буквы, цифры и @/./+/-/_</small>
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_password1" class="form-label">Пароль</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                            {{ form.password1 }}
+                        </div>
+                        <small class="text-muted">Минимум 8 символов</small>
+                    </div>
+                    <div class="mb-4">
+                        <label for="id_password2" class="form-label">Подтверждение пароля</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+                            {{ form.password2 }}
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 py-2">
+                        <i class="bi bi-person-check"></i> Зарегистрироваться
+                    </button>
+                </form>
+
+                <hr class="my-4">
+                <p class="text-center mb-0">
+                    Уже есть аккаунт? <a href="{% url 'login' %}">Войдите</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+

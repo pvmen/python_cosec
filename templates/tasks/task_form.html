@@ -23,7 +23,7 @@
     <div class="card-body">
         <form method="post">
             {% csrf_token %}
-            
+
             <div class="mb-3">
                 <label for="id_title" class="form-label">Название *</label>
                 {{ form.title }}
@@ -31,12 +31,12 @@
                 <div class="text-danger">{{ form.title.errors }}</div>
                 {% endif %}
             </div>
-            
+
             <div class="mb-3">
                 <label for="id_description" class="form-label">Описание</label>
                 {{ form.description }}
             </div>
-            
+
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label for="id_category" class="form-label">Категория</label>
@@ -47,22 +47,22 @@
                     {{ form.assigned_to }}
                 </div>
             </div>
-            
+
             <div class="row">
-                <div class="col-md-6 mb-3">
+                <div class="col-md-4 mb-3">
+                    <label for="id_priority" class="form-label">Приоритет</label>
+                    {{ form.priority }}
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="id_status" class="form-label">Статус</label>
+                    {{ form.status }}
+                </div>
+                <div class="col-md-4 mb-3">
                     <label for="id_deadline" class="form-label">Дедлайн</label>
                     {{ form.deadline }}
                 </div>
-                <div class="col-md-6 mb-3 d-flex align-items-end">
-                    <div class="form-check">
-                        {{ form.is_completed }}
-                        <label class="form-check-label" for="id_is_completed">
-                            Задача выполнена
-                        </label>
-                    </div>
-                </div>
             </div>
-            
+
             <hr>
             <button type="submit" class="btn btn-primary">
                 <i class="bi bi-check-lg"></i> {% if object %}Сохранить{% else %}Создать{% endif %}
@@ -74,4 +74,3 @@
     </div>
 </div>
 {% endblock %}
-

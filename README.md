@@ -1,15 +1,33 @@
 # Task Manager - Django Project
 
-Веб-приложение для управления задачами с категориями, статусами и исполнителями.
+Веб-приложение для управления задачами с категориями, приоритетами, бизнес-статусами и Kanban-доской.
 
 ## Функционал
 
-- ✅ CRUD операции для задач (создание, просмотр, редактирование, удаление)
-- 📂 Категории задач
-- 👤 Назначение исполнителей
-- 🔍 Фильтрация по категории и статусу
+- ✅ CRUD операции для задач
+- 📂 Категории задач (Разработка, Баги, Документация, Тестирование, Дизайн, Инфраструктура)
+- 🎯 Приоритеты (Высокий / Средний / Низкий)
+- 📊 Бизнес-статусы (9 статусов от "Нужно сделать" до "Выполнено")
+- 📋 Kanban-доска с drag & drop
+- 🔍 Фильтрация по категории, статусу, приоритету
+- 📅 Фильтры по дате (сегодня, на неделе, просроченные)
 - 📄 Пагинация списка задач
+- 🔐 Авторизация и регистрация пользователей
 - 🔧 Django Admin панель
+
+## Статусы задач
+
+| Статус | Описание |
+|--------|----------|
+| Нужно сделать | Задача создана |
+| В работе | Задача в процессе выполнения |
+| Ревью | На проверке |
+| Ждёт связанные таски | Заблокирована |
+| Готово к тестированию | Разработка завершена |
+| Тестирование | QA проверяет |
+| Протестировано | QA одобрил |
+| Готово к деплою | Ожидает релиза |
+| Выполнено | Задача закрыта |
 
 ## Технологии
 
@@ -17,6 +35,7 @@
 - Django 6.0
 - SQLite
 - Bootstrap 5
+- JavaScript (drag & drop)
 
 ## Установка и запуск
 
@@ -69,24 +88,29 @@ python manage.py runserver
 
 ```
 python_cosec/
-├── config/              # Настройки Django проекта
+├── config/                  # Настройки Django проекта
 │   ├── settings.py
 │   ├── urls.py
 │   └── wsgi.py
-├── tasks/               # Приложение задач
-│   ├── models.py        # Модели Task, Category
-│   ├── views.py         # CRUD views (CBV)
-│   ├── admin.py         # Настройка админки
-│   ├── urls.py          # URL маршруты
-│   └── forms.py         # Формы
-├── templates/           # HTML шаблоны
+├── tasks/                   # Приложение задач
+│   ├── models.py            # Task, Category
+│   ├── views.py             # CRUD + Kanban + Auth views
+│   ├── admin.py             # Настройка админки
+│   ├── urls.py              # URL маршруты
+│   ├── forms.py             # TaskForm, RegisterForm
+│   └── templatetags/        # Custom filters
+├── templates/
 │   ├── base.html
-│   └── tasks/
-│       ├── task_list.html
-│       ├── task_detail.html
-│       ├── task_form.html
-│       └── task_confirm_delete.html
-├── db.sqlite3           # База данных SQLite
+│   ├── tasks/
+│   │   ├── task_list.html
+│   │   ├── task_detail.html
+│   │   ├── task_form.html
+│   │   ├── task_confirm_delete.html
+│   │   └── kanban.html
+│   └── registration/
+│       ├── login.html
+│       └── register.html
+├── db.sqlite3
 ├── requirements.txt
 ├── manage.py
 └── README.md
@@ -100,19 +124,27 @@ python_cosec/
 ### Task
 - `title` - название задачи
 - `description` - описание
-- `created_at` - дата создания (автоматически)
+- `created_at` - дата создания
 - `deadline` - дедлайн
-- `is_completed` - статус выполнения
+- `priority` - приоритет (low/medium/high)
+- `status` - статус (todo/in_progress/review/blocked/ready_test/testing/tested/ready_deploy/done)
 - `category` - категория (FK → Category)
 - `assigned_to` - исполнитель (FK → User)
 
-## Админка
+## URL маршруты
 
-Доступ: http://127.0.0.1:8000/admin/
-
-Учётные данные по умолчанию:
-- Логин: `admin`
-- Пароль: `admin123`
+| URL | Описание |
+|-----|----------|
+| `/` | Список задач |
+| `/kanban/` | Kanban-доска |
+| `/task/create/` | Создать задачу |
+| `/task/<id>/` | Детали задачи |
+| `/task/<id>/edit/` | Редактировать |
+| `/task/<id>/delete/` | Удалить |
+| `/login/` | Вход |
+| `/register/` | Регистрация |
+| `/logout/` | Выход |
+| `/admin/` | Админка |
 
 ## Автор
 

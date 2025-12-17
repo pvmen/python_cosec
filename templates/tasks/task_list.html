@@ -10,11 +10,10 @@
     </a>
 </div>
 
-<!-- Фильтры -->
 <div class="card mb-4">
     <div class="card-body">
         <form method="get" class="row g-3">
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <label class="form-label">Категория</label>
                 <select name="category" class="form-select">
                     <option value="">Все категории</option>
@@ -25,32 +24,50 @@
                     {% endfor %}
                 </select>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-2">
                 <label class="form-label">Статус</label>
                 <select name="status" class="form-select">
                     <option value="">Все статусы</option>
-                    <option value="pending" {% if current_status == 'pending' %}selected{% endif %}>Не выполнено</option>
-                    <option value="completed" {% if current_status == 'completed' %}selected{% endif %}>Выполнено</option>
+                    {% for code, label in statuses %}
+                    <option value="{{ code }}" {% if current_status == code %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
                 </select>
             </div>
-            <div class="col-md-4 d-flex align-items-end">
+            <div class="col-md-2">
+                <label class="form-label">Приоритет</label>
+                <select name="priority" class="form-select">
+                    <option value="">Все</option>
+                    {% for code, label in priorities %}
+                    <option value="{{ code }}" {% if current_priority == code %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Дедлайн</label>
+                <select name="date_filter" class="form-select">
+                    <option value="">Все даты</option>
+                    <option value="today" {% if current_date_filter == 'today' %}selected{% endif %}>Сегодня</option>
+                    <option value="week" {% if current_date_filter == 'week' %}selected{% endif %}>На неделе</option>
+                    <option value="overdue" {% if current_date_filter == 'overdue' %}selected{% endif %}>Просрочено</option>
+                </select>
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
                 <button type="submit" class="btn btn-outline-primary me-2">
-                    <i class="bi bi-funnel"></i> Фильтровать
+                    <i class="bi bi-funnel"></i> Фильтр
                 </button>
                 <a href="{% url 'task_list' %}" class="btn btn-outline-secondary">
-                    <i class="bi bi-x-circle"></i> Сбросить
+                    <i class="bi bi-x-circle"></i> Сброс
                 </a>
             </div>
         </form>
     </div>
 </div>
 
-<!-- Список задач -->
 {% if tasks %}
 <div class="row">
     {% for task in tasks %}
     <div class="col-md-6 col-lg-4 mb-4">
-        <div class="card task-card h-100">
+        <div class="card task-card h-100 priority-{{ task.priority }}">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-start mb-2">
                     <h5 class="card-title mb-0">
@@ -58,25 +75,24 @@
                             {{ task.title }}
                         </a>
                     </h5>
-                    {% if task.is_completed %}
-                    <span class="badge badge-completed">Выполнено</span>
-                    {% else %}
-                    <span class="badge badge-pending">В работе</span>
+                    <span class="badge bg-{% if task.priority == 'high' %}danger{% elif task.priority == 'medium' %}warning text-dark{% else %}success{% endif %}">
+                        {{ task.get_priority_display }}
+                    </span>
+                </div>
+
+                <div class="mb-2">
+                    <span class="badge bg-secondary status-badge">{{ task.get_status_display }}</span>
+                    {% if task.category %}
+                    <span class="badge bg-info status-badge">{{ task.category.name }}</span>
                     {% endif %}
                 </div>
-                
-                {% if task.category %}
-                <p class="mb-2">
-                    <span class="badge bg-secondary">{{ task.category.name }}</span>
-                </p>
-                {% endif %}
-                
+
                 {% if task.description %}
                 <p class="card-text text-muted small">
                     {{ task.description|truncatewords:20 }}
                 </p>
                 {% endif %}
-                
+
                 <div class="mt-3 small text-muted">
                     {% if task.assigned_to %}
                     <p class="mb-1">
@@ -84,12 +100,12 @@
                     </p>
                     {% endif %}
                     {% if task.deadline %}
-                    <p class="mb-1">
-                        <i class="bi bi-calendar-event"></i> Дедлайн: {{ task.deadline|date:"d.m.Y H:i" }}
+                    <p class="mb-1 {% if task.deadline < now and task.status != 'done' %}text-danger{% endif %}">
+                        <i class="bi bi-calendar-event"></i> {{ task.deadline|date:"d.m.Y H:i" }}
                     </p>
                     {% endif %}
                     <p class="mb-0">
-                        <i class="bi bi-clock"></i> Создано: {{ task.created_at|date:"d.m.Y" }}
+                        <i class="bi bi-clock"></i> {{ task.created_at|date:"d.m.Y" }}
                     </p>
                 </div>
             </div>
@@ -109,25 +125,24 @@
     {% endfor %}
 </div>
 
-<!-- Пагинация -->
 {% if page_obj.has_other_pages %}
 <nav aria-label="Page navigation" class="mt-4">
     <ul class="pagination justify-content-center">
         {% if page_obj.has_previous %}
         <li class="page-item">
-            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if current_category %}&category={{ current_category }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}">&laquo;</a>
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if current_category %}&category={{ current_category }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}{% if current_priority %}&priority={{ current_priority }}{% endif %}{% if current_date_filter %}&date_filter={{ current_date_filter }}{% endif %}">&laquo;</a>
         </li>
         {% endif %}
-        
+
         {% for num in page_obj.paginator.page_range %}
         <li class="page-item {% if page_obj.number == num %}active{% endif %}">
-            <a class="page-link" href="?page={{ num }}{% if current_category %}&category={{ current_category }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}">{{ num }}</a>
+            <a class="page-link" href="?page={{ num }}{% if current_category %}&category={{ current_category }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}{% if current_priority %}&priority={{ current_priority }}{% endif %}{% if current_date_filter %}&date_filter={{ current_date_filter }}{% endif %}">{{ num }}</a>
         </li>
         {% endfor %}
-        
+
         {% if page_obj.has_next %}
         <li class="page-item">
-            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if current_category %}&category={{ current_category }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}">&raquo;</a>
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if current_category %}&category={{ current_category }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}{% if current_priority %}&priority={{ current_priority }}{% endif %}{% if current_date_filter %}&date_filter={{ current_date_filter }}{% endif %}">&raquo;</a>
         </li>
         {% endif %}
     </ul>
@@ -141,4 +156,3 @@
 </div>
 {% endif %}
 {% endblock %}
-

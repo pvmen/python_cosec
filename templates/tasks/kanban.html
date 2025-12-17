@@ -1,0 +1,201 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+
+{% block title %}Kanban - Task Manager{% endblock %}
+
+{% block extra_css %}
+<style>
+    .kanban-container {
+        display: flex;
+        gap: 10px;
+        overflow-x: auto;
+        padding-bottom: 20px;
+    }
+    .kanban-column {
+        min-width: 280px;
+        max-width: 280px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 10px;
+    }
+    .kanban-column-header {
+        font-weight: 600;
+        padding: 10px;
+        border-radius: 6px;
+        margin-bottom: 10px;
+        text-align: center;
+        font-size: 0.85rem;
+    }
+    .kanban-tasks {
+        min-height: 100px;
+    }
+    .kanban-task {
+        background: white;
+        border-radius: 6px;
+        padding: 10px;
+        margin-bottom: 8px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        cursor: grab;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .kanban-task:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+    .kanban-task.dragging {
+        opacity: 0.5;
+        cursor: grabbing;
+    }
+    .kanban-task-title {
+        font-weight: 500;
+        font-size: 0.9rem;
+        margin-bottom: 5px;
+    }
+    .kanban-task-meta {
+        font-size: 0.75rem;
+        color: #6c757d;
+    }
+    .priority-indicator {
+        width: 4px;
+        height: 100%;
+        position: absolute;
+        left: 0;
+        top: 0;
+        border-radius: 6px 0 0 6px;
+    }
+    .kanban-task {
+        position: relative;
+        padding-left: 14px;
+    }
+    .priority-high .priority-indicator { background: #dc3545; }
+    .priority-medium .priority-indicator { background: #ffc107; }
+    .priority-low .priority-indicator { background: #198754; }
+    .status-todo { background: #6c757d; color: white; }
+    .status-in_progress { background: #0d6efd; color: white; }
+    .status-review { background: #6f42c1; color: white; }
+    .status-blocked { background: #dc3545; color: white; }
+    .status-ready_test { background: #fd7e14; color: white; }
+    .status-testing { background: #20c997; color: white; }
+    .status-tested { background: #198754; color: white; }
+    .status-ready_deploy { background: #0dcaf0; color: black; }
+    .status-done { background: #198754; color: white; }
+    .drag-over {
+        background: #e9ecef;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="bi bi-kanban"></i> Kanban-доска</h1>
+    <a href="{% url 'task_create' %}" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i> Новая задача
+    </a>
+</div>
+
+<div class="kanban-container">
+    {% for status_code, status_label in statuses %}
+    <div class="kanban-column" data-status="{{ status_code }}">
+        <div class="kanban-column-header status-{{ status_code }}">
+            {{ status_label }}
+            <span class="badge bg-light text-dark ms-1">{{ tasks_by_status|get_item:status_code|length }}</span>
+        </div>
+        <div class="kanban-tasks" data-status="{{ status_code }}">
+            {% for task in tasks_by_status|get_item:status_code %}
+            <div class="kanban-task priority-{{ task.priority }}" draggable="true" data-task-id="{{ task.pk }}">
+                <div class="priority-indicator"></div>
+                <div class="kanban-task-title">
+                    <a href="{% url 'task_detail' task.pk %}" class="text-decoration-none text-dark">
+                        {{ task.title }}
+                    </a>
+                </div>
+                <div class="kanban-task-meta">
+                    {% if task.category %}
+                    <span class="badge bg-secondary">{{ task.category.name }}</span>
+                    {% endif %}
+                    {% if task.assigned_to %}
+                    <br><i class="bi bi-person"></i> {{ task.assigned_to.username }}
+                    {% endif %}
+                    {% if task.deadline %}
+                    <br><i class="bi bi-calendar"></i> {{ task.deadline|date:"d.m" }}
+                    {% endif %}
+                </div>
+            </div>
+            {% empty %}
+            <div class="text-muted text-center small py-3">Нет задач</div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const tasks = document.querySelectorAll('.kanban-task');
+    const columns = document.querySelectorAll('.kanban-tasks');
+
+    tasks.forEach(task => {
+        task.addEventListener('dragstart', function(e) {
+            e.dataTransfer.setData('text/plain', task.dataset.taskId);
+            task.classList.add('dragging');
+        });
+
+        task.addEventListener('dragend', function() {
+            task.classList.remove('dragging');
+        });
+    });
+
+    columns.forEach(column => {
+        column.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            column.classList.add('drag-over');
+        });
+
+        column.addEventListener('dragleave', function() {
+            column.classList.remove('drag-over');
+        });
+
+        column.addEventListener('drop', function(e) {
+            e.preventDefault();
+            column.classList.remove('drag-over');
+
+            const taskId = e.dataTransfer.getData('text/plain');
+            const newStatus = column.dataset.status;
+            const taskElement = document.querySelector(`[data-task-id="${taskId}"]`);
+
+            if (taskElement && taskElement.parentElement !== column) {
+                column.appendChild(taskElement);
+
+                fetch(`/task/${taskId}/update-status/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: `status=${newStatus}`
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.success) {
+                        location.reload();
+                    }
+                    updateColumnCounts();
+                })
+                .catch(() => location.reload());
+            }
+        });
+    });
+
+    function updateColumnCounts() {
+        document.querySelectorAll('.kanban-column').forEach(col => {
+            const count = col.querySelectorAll('.kanban-task').length;
+            const badge = col.querySelector('.badge');
+            if (badge) badge.textContent = count;
+        });
+    }
+});
+</script>
+{% endblock %}
+
