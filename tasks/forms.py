@@ -7,11 +7,12 @@ from .models import Task
 class TaskForm(forms.ModelForm):
     class Meta:
         model = Task
-        fields = ['title', 'description', 'deadline', 'priority', 'status', 'category', 'assigned_to']
+        fields = ['title', 'description', 'deadline', 'estimated_hours', 'priority', 'status', 'category', 'assigned_to']
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
             'deadline': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
+            'estimated_hours': forms.NumberInput(attrs={'class': 'form-control', 'min': '1', 'placeholder': 'часов'}),
             'priority': forms.Select(attrs={'class': 'form-select'}),
             'status': forms.Select(attrs={'class': 'form-select'}),
             'category': forms.Select(attrs={'class': 'form-select'}),

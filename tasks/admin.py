@@ -10,9 +10,9 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Task)
 class TaskAdmin(admin.ModelAdmin):
-    list_display = ['title', 'category', 'assigned_to', 'priority', 'status', 'deadline', 'created_at']
+    list_display = ['title', 'category', 'assigned_to', 'priority', 'status', 'estimated_hours', 'deadline', 'created_at']
     list_filter = ['status', 'priority', 'category', 'assigned_to', 'created_at', 'deadline']
     search_fields = ['title', 'description']
-    list_editable = ['status', 'priority']
+    list_editable = ['status', 'priority', 'estimated_hours']
     date_hierarchy = 'created_at'
     ordering = ['-created_at']

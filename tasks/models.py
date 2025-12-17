@@ -37,6 +37,7 @@ class Task(models.Model):
     description = models.TextField('Описание', blank=True)
     created_at = models.DateTimeField('Дата создания', auto_now_add=True)
     deadline = models.DateTimeField('Дедлайн', null=True, blank=True)
+    estimated_hours = models.PositiveIntegerField('Оценка времени (часы)', null=True, blank=True)
     priority = models.CharField(
         'Приоритет',
         max_length=10,

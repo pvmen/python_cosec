@@ -99,6 +99,11 @@
                         <i class="bi bi-person"></i> {{ task.assigned_to.username }}
                     </p>
                     {% endif %}
+                    {% if task.estimated_hours %}
+                    <p class="mb-1">
+                        <i class="bi bi-hourglass-split"></i> {{ task.estimated_hours }} ч.
+                    </p>
+                    {% endif %}
                     {% if task.deadline %}
                     <p class="mb-1 {% if task.deadline < now and task.status != 'done' %}text-danger{% endif %}">
                         <i class="bi bi-calendar-event"></i> {{ task.deadline|date:"d.m.Y H:i" }}

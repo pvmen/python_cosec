@@ -62,6 +62,14 @@
                                 {{ task.get_status_display }}
                             </li>
                             <li class="mb-2">
+                                <strong><i class="bi bi-hourglass-split"></i> Оценка времени:</strong><br>
+                                {% if task.estimated_hours %}
+                                {{ task.estimated_hours }} ч.
+                                {% else %}
+                                <span class="text-muted">Не указана</span>
+                                {% endif %}
+                            </li>
+                            <li class="mb-2">
                                 <strong><i class="bi bi-calendar-event"></i> Дедлайн:</strong><br>
                                 {% if task.deadline %}
                                 {{ task.deadline|date:"d.m.Y H:i" }}
