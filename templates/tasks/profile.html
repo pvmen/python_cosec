@@ -1,0 +1,170 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ profile_user.username }} - COSEC Task Manager{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <i class="bi bi-person-circle" style="font-size: 5rem; color: #6c757d;"></i>
+                </div>
+                <h3>{{ profile_user.username }}</h3>
+                {% if profile_user.first_name or profile_user.last_name %}
+                <p class="text-muted">{{ profile_user.first_name }} {{ profile_user.last_name }}</p>
+                {% endif %}
+                <p class="text-muted small">
+                    <i class="bi bi-calendar"></i> На сайте с {{ profile.created_at|date:"d.m.Y" }}
+                </p>
+                {% if is_own_profile %}
+                <a href="{% url 'profile_edit' %}" class="btn btn-outline-primary btn-sm">
+                    <i class="bi bi-pencil"></i> Редактировать профиль
+                </a>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <i class="bi bi-info-circle"></i> О себе
+            </div>
+            <div class="card-body">
+                {% if profile.bio %}
+                <p>{{ profile.bio|linebreaks }}</p>
+                {% else %}
+                <p class="text-muted">Пользователь ещё не добавил информацию о себе</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <i class="bi bi-bar-chart"></i> Общая статистика
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Всего задач:</span>
+                    <strong>{{ all_tasks }}</strong>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Выполнено:</span>
+                    <strong class="text-success">{{ all_completed }}</strong>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span>Часов работы:</span>
+                    <strong>{{ all_hours }} ч.</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <h4 class="mb-3"><i class="bi bi-graph-up"></i> Метрики продуктивности</h4>
+
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <div class="card bg-primary text-white">
+                    <div class="card-body">
+                        <h6 class="card-title"><i class="bi bi-calendar-day"></i> Сегодня</h6>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <div>
+                                <h2 class="mb-0">{{ metrics_today.completed }}/{{ metrics_today.total }}</h2>
+                                <small>задач выполнено</small>
+                            </div>
+                            <div class="text-end">
+                                <h3 class="mb-0">{{ metrics_today.completion_rate }}%</h3>
+                            </div>
+                        </div>
+                        <hr class="my-2 opacity-50">
+                        <small>
+                            <i class="bi bi-hourglass"></i> {{ metrics_today.hours }} ч. работы |
+                            <i class="bi bi-play-circle"></i> {{ metrics_today.in_progress }} в процессе
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4 mb-3">
+                <div class="card bg-success text-white">
+                    <div class="card-body">
+                        <h6 class="card-title"><i class="bi bi-calendar-week"></i> Эта неделя</h6>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <div>
+                                <h2 class="mb-0">{{ metrics_week.completed }}/{{ metrics_week.total }}</h2>
+                                <small>задач выполнено</small>
+                            </div>
+                            <div class="text-end">
+                                <h3 class="mb-0">{{ metrics_week.completion_rate }}%</h3>
+                            </div>
+                        </div>
+                        <hr class="my-2 opacity-50">
+                        <small>
+                            <i class="bi bi-hourglass"></i> {{ metrics_week.hours }} ч. работы |
+                            <i class="bi bi-play-circle"></i> {{ metrics_week.in_progress }} в процессе
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4 mb-3">
+                <div class="card bg-info text-white">
+                    <div class="card-body">
+                        <h6 class="card-title"><i class="bi bi-calendar-month"></i> Этот месяц</h6>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <div>
+                                <h2 class="mb-0">{{ metrics_month.completed }}/{{ metrics_month.total }}</h2>
+                                <small>задач выполнено</small>
+                            </div>
+                            <div class="text-end">
+                                <h3 class="mb-0">{{ metrics_month.completion_rate }}%</h3>
+                            </div>
+                        </div>
+                        <hr class="my-2 opacity-50">
+                        <small>
+                            <i class="bi bi-hourglass"></i> {{ metrics_month.hours }} ч. работы |
+                            <i class="bi bi-play-circle"></i> {{ metrics_month.in_progress }} в процессе
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-clock-history"></i> Последние задачи</span>
+                <a href="{% url 'task_list' %}?assigned_to={{ profile_user.id }}" class="btn btn-sm btn-outline-primary">
+                    Все задачи
+                </a>
+            </div>
+            <div class="card-body">
+                {% if recent_tasks %}
+                <div class="list-group list-group-flush">
+                    {% for task in recent_tasks %}
+                    <a href="{% url 'task_detail' task.pk %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>{{ task.title }}</strong>
+                            {% if task.category %}
+                            <span class="badge bg-secondary ms-2">{{ task.category.name }}</span>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <span class="badge bg-{% if task.status == 'done' %}success{% elif task.status == 'in_progress' %}primary{% else %}secondary{% endif %}">
+                                {{ task.get_status_display }}
+                            </span>
+                            {% if task.estimated_hours %}
+                            <span class="badge bg-light text-dark">{{ task.estimated_hours }} ч.</span>
+                            {% endif %}
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted mb-0">Нет назначенных задач</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

@@ -70,6 +70,17 @@
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li>
+                                <a class="dropdown-item" href="{% url 'profile' user.username %}">
+                                    <i class="bi bi-person"></i> Мой профиль
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{% url 'profile_edit' %}">
+                                    <i class="bi bi-gear"></i> Настройки
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
                                 <form method="post" action="{% url 'logout' %}" class="d-inline">
                                     {% csrf_token %}
                                     <button type="submit" class="dropdown-item">

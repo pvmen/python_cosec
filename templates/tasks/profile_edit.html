@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}Редактировать профиль - COSEC Task Manager{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'profile' request.user.username %}">Профиль</a></li>
+        <li class="breadcrumb-item active">Редактирование</li>
+    </ol>
+</nav>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0"><i class="bi bi-pencil"></i> Редактировать профиль</h4>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Имя пользователя</label>
+                        <input type="text" class="form-control" value="{{ request.user.username }}" disabled>
+                        <small class="text-muted">Имя пользователя нельзя изменить</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="id_bio" class="form-label">О себе</label>
+                        {{ form.bio }}
+                        <small class="text-muted">Расскажите о себе, своих навыках и опыте</small>
+                    </div>
+                    
+                    <hr>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-lg"></i> Сохранить
+                    </button>
+                    <a href="{% url 'profile' request.user.username %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-x-lg"></i> Отмена
+                    </a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

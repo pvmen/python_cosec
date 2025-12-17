@@ -1,6 +1,12 @@
 from django.contrib import admin
 
-from .models import Category, Task
+from .models import Category, Task, Profile
+
+
+@admin.register(Profile)
+class ProfileAdmin(admin.ModelAdmin):
+    list_display = ["user", "created_at"]
+    search_fields = ["user__username", "bio"]
 
 
 @admin.register(Category)

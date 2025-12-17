@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
-from .models import Task
+from .models import Task, Profile
 
 
 class TaskForm(forms.ModelForm):
@@ -32,7 +32,9 @@ class TaskForm(forms.ModelForm):
             "status": forms.Select(attrs={"class": "form-select"}),
             "category": forms.Select(attrs={"class": "form-select"}),
             "assigned_to": forms.Select(attrs={"class": "form-select"}),
-            "blocked_by": forms.SelectMultiple(attrs={"class": "form-select", "size": "5"}),
+            "blocked_by": forms.SelectMultiple(
+                attrs={"class": "form-select", "size": "5"}
+            ),
         }
 
 
@@ -46,3 +48,12 @@ class RegisterForm(UserCreationForm):
         self.fields["username"].widget.attrs.update({"class": "form-control"})
         self.fields["password1"].widget.attrs.update({"class": "form-control"})
         self.fields["password2"].widget.attrs.update({"class": "form-control"})
+
+
+class ProfileForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ["bio"]
+        widgets = {
+            "bio": forms.Textarea(attrs={"class": "form-control", "rows": 5, "placeholder": "Расскажите о себе..."}),
+        }
