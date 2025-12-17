@@ -67,6 +67,12 @@
                 </div>
             </div>
 
+            <div class="mb-3">
+                <label for="id_blocked_by" class="form-label">Блокируется задачами</label>
+                {{ form.blocked_by }}
+                <small class="text-muted">Выберите задачи, которые блокируют выполнение этой задачи (Ctrl+клик для множественного выбора)</small>
+            </div>
+
             <hr>
             <button type="submit" class="btn btn-primary">
                 <i class="bi bi-check-lg"></i> {% if object %}Сохранить{% else %}Создать{% endif %}

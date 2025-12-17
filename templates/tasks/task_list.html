@@ -85,6 +85,16 @@
                     {% if task.category %}
                     <span class="badge bg-info status-badge">{{ task.category.name }}</span>
                     {% endif %}
+                    {% if task.blocked_by.exists %}
+                    <span class="badge bg-danger status-badge" title="Блокируется {{ task.blocked_by.count }} задачами">
+                        <i class="bi bi-lock"></i> {{ task.blocked_by.count }}
+                    </span>
+                    {% endif %}
+                    {% if task.blocking.exists %}
+                    <span class="badge bg-warning text-dark status-badge" title="Блокирует {{ task.blocking.count }} задач">
+                        <i class="bi bi-unlock"></i> {{ task.blocking.count }}
+                    </span>
+                    {% endif %}
                 </div>
 
                 {% if task.description %}
